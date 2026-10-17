@@ -47,4 +47,4 @@ target_include_directories(dll_test PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 target_link_libraries(dll_test PRIVATE
-        kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler)
+        kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler RuntimeObject.lib)
