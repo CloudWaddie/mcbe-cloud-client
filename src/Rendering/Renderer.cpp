@@ -110,21 +110,20 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
                 return oPresent(this_, SyncInterval, Flags);
             }
             IUnknown* queues[] = { commandQueue.get() };
-            UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
             if (!d3d11on12Device) {
                 HRESULT hr = D3D11On12CreateDevice(d3d12Device.get(), D3D11_CREATE_DEVICE_BGRA_SUPPORT, nullptr, 0, queues, 1, 0, d3d11Device.put(), d3d11Context.put(), nullptr);
                 if (SUCCEEDED(hr)) {
                     d3d11Device.as(d3d11on12Device);
                 }
             }
-            if (d3d11on12Device && !framesReady) {
-                framesReady = createRenderTargets(this_);
-            }
         }
         else if (SUCCEEDED(this_->GetDevice(IID_PPV_ARGS(d3d11Device.put())))) {
             // directx11
             d3d11Device->GetImmediateContext(d3d11Context.put());
         }
+    }
+    if (d3d11on12Device && !framesReady) {
+        framesReady = createRenderTargets(this_);
     }
     if (!imguiBackendReady && win32Ready && d3d11Device && d3d11Context) {
         imguiBackendReady = ImGui_ImplDX11_Init(
