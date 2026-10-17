@@ -83,23 +83,29 @@ LRESULT CALLBACK hk_windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return CallWindowProc(oWndProc, hwnd, msg, wParam, lParam);
 }
 
-static bool hookWndProc(HWND hwnd) {
-    WNDPROC wndProc = reinterpret_cast<WNDPROC>(
-        GetWindowLongPtr(hwnd, GWLP_WNDPROC)
-    );
 
-    if (!wndProc)
+static HWND hookedWindow = nullptr;
+
+static bool hookWndProc(HWND hwnd) {
+    if (!hwnd || !IsWindow(hwnd))
         return false;
 
-    if (MH_CreateHook(
-        reinterpret_cast<LPVOID>(wndProc),
-        reinterpret_cast<LPVOID>(&hk_windowProc),
-        reinterpret_cast<LPVOID*>(&oWndProc)
-    ) != MH_OK) {
+    SetLastError(0);
+
+    auto previous = SetWindowLongPtr(
+        hwnd,
+        GWLP_WNDPROC,
+        reinterpret_cast<LONG_PTR>(&hk_windowProc)
+    );
+
+    if (!previous) {
         return false;
     }
 
-    return MH_EnableHook(reinterpret_cast<LPVOID>(wndProc)) == MH_OK;
+    oWndProc = reinterpret_cast<WNDPROC>(previous);
+    hookedWindow = hwnd;
+
+    return true;
 }
 
 static bool createRenderTargets(IDXGISwapChain* swapChain) {
@@ -165,11 +171,11 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         DXGI_SWAP_CHAIN_DESC desc{};
         this_->GetDesc(&desc);
         HWND hwnd = desc.OutputWindow;
-        if (hwnd && !wndProcHooked) {
-            wndProcHooked = hookWndProc(hwnd);
-        }
         if (hwnd && !win32Ready) {
             win32Ready = ImGui_ImplWin32_Init(hwnd);
+        }
+        if (hwnd && !wndProcHooked && win32Ready ) {
+            wndProcHooked = hookWndProc(hwnd);
         }
         if (!d3d12Device) {
             this_->GetDevice(IID_PPV_ARGS(d3d12Device.put()));
