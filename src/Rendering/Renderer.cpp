@@ -16,6 +16,9 @@
 #include <vector>
 #include <utility>
 
+// minhook for window messages
+#include <MinHook.h>
+
 // all vars we need for rendering
 static winrt::com_ptr<ID3D11Device> d3d11Device;
 static winrt::com_ptr<ID3D11DeviceContext> d3d11Context;
@@ -28,12 +31,76 @@ static std::vector<winrt::com_ptr<ID3D11RenderTargetView>> renderTargetViews; //
 static bool imguiBackendReady = false;
 static bool framesReady = false;
 static bool win32Ready = false;
+static bool wndProcHooked = false;
 
 using executeCommandQueueFunc = void(*)(ID3D12CommandQueue*, UINT, ID3D12CommandList* const*);
 using presentFunc = HRESULT(*)(IDXGISwapChain*, UINT, UINT);
 
 static executeCommandQueueFunc oExecuteCommandLists{};
 static presentFunc oPresent{};
+static WNDPROC oWndProc = nullptr;
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK hk_windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    if (ImGui::GetCurrentContext()) {
+        LRESULT result = ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam);
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (io.WantCaptureMouse) {
+            switch (msg) {
+                case WM_MOUSEMOVE:
+                case WM_LBUTTONDOWN:
+                case WM_LBUTTONUP:
+                case WM_RBUTTONDOWN:
+                case WM_RBUTTONUP:
+                case WM_MBUTTONDOWN:
+                case WM_MBUTTONUP:
+                case WM_MOUSEWHEEL:
+                case WM_MOUSEHWHEEL:
+                    return 0;
+                case WM_XBUTTONDOWN:
+                case WM_XBUTTONUP:
+                case WM_XBUTTONDBLCLK:
+                    return TRUE;
+            }
+        }
+        if (io.WantCaptureKeyboard) {
+            switch (msg) {
+                case WM_KEYDOWN:
+                case WM_KEYUP:
+                case WM_SYSKEYDOWN:
+                case WM_SYSKEYUP:
+                case WM_CHAR:
+                case WM_SYSCHAR:
+                    return 0;
+            }
+        }
+
+        if (result) {
+            return result;
+        }
+    }
+    return CallWindowProc(oWndProc, hwnd, msg, wParam, lParam);
+}
+
+static bool hookWndProc(HWND hwnd) {
+    WNDPROC wndProc = reinterpret_cast<WNDPROC>(
+        GetWindowLongPtr(hwnd, GWLP_WNDPROC)
+    );
+
+    if (!wndProc)
+        return false;
+
+    if (MH_CreateHook(
+        reinterpret_cast<LPVOID>(wndProc),
+        reinterpret_cast<LPVOID>(&hk_windowProc),
+        reinterpret_cast<LPVOID*>(&oWndProc)
+    ) != MH_OK) {
+        return false;
+    }
+
+    return MH_EnableHook(reinterpret_cast<LPVOID>(wndProc)) == MH_OK;
+}
 
 static bool createRenderTargets(IDXGISwapChain* swapChain) {
     if (!d3d11Device || !d3d11on12Device) {
@@ -98,6 +165,9 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         DXGI_SWAP_CHAIN_DESC desc{};
         this_->GetDesc(&desc);
         HWND hwnd = desc.OutputWindow;
+        if (hwnd && !wndProcHooked) {
+            wndProcHooked = hookWndProc(hwnd);
+        }
         if (hwnd && !win32Ready) {
             win32Ready = ImGui_ImplWin32_Init(hwnd);
         }
