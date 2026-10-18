@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.3)
 project(dll_test)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 include(cmake/CPM.cmake)
@@ -47,4 +47,4 @@ target_include_directories(dll_test PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 target_link_libraries(dll_test PRIVATE
-        kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler RuntimeObject.lib)
+        kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler RuntimeObject.lib GameInput)

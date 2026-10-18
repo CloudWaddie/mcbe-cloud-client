@@ -1,23 +1,13 @@
 #define NOMINMAX
+#include <cstdio>
 #include <Windows.h>
-#include <cstdlib>
 #include <MinHook.h>
 #include <Rendering/Renderer.h>
+#include <print>
 
-#include "SDK/game/ClientInstance.h"
 
 static DWORD WINAPI startup(LPVOID dll) {
-    auto status = MH_Initialize();
-
-    if (status != MH_OK &&
-        status != MH_ERROR_ALREADY_INITIALIZED)
-        return 1;
-
-    if (!Rendering::init()) {
-        OutputDebugStringA("Renderer initialization failed\n");
-        return 1;
-    }
-
+    MH_Initialize();
     return 0;
 }
 

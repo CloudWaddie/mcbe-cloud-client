@@ -19,6 +19,9 @@
 // minhook for window messages
 #include <MinHook.h>
 
+// game input
+#include "../GameInput/GameInput.h"
+
 // all vars we need for rendering
 static winrt::com_ptr<ID3D11Device> d3d11Device;
 static winrt::com_ptr<ID3D11DeviceContext> d3d11Context;
@@ -35,18 +38,38 @@ static bool wndProcHooked = false;
 
 using executeCommandQueueFunc = void(*)(ID3D12CommandQueue*, UINT, ID3D12CommandList* const*);
 using presentFunc = HRESULT(*)(IDXGISwapChain*, UINT, UINT);
+using gameMouseStateFunc = bool(*)(GameInput::v2::IGameInputReading*, GameInput::v2::GameInputMouseState*);
 
 static executeCommandQueueFunc oExecuteCommandLists{};
 static presentFunc oPresent{};
 static WNDPROC oWndProc = nullptr;
+static gameMouseStateFunc oGameMouseState{};
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static bool hk_GameMouseState(
+    GameInput::v2::IGameInputReading* self,
+    GameInput::v2::GameInputMouseState* mouseState
+) {
+    bool result = oGameMouseState(self, mouseState);
+
+    if (result && mouseState && ImGui::GetCurrentContext()) {
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (io.WantCaptureMouse) {
+            // Suppress mouse input reaching the game.
+            *mouseState = {};
+        }
+    }
+
+    return result;
+}
 
 LRESULT CALLBACK hk_windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (ImGui::GetCurrentContext()) {
         LRESULT result = ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam);
         ImGuiIO& io = ImGui::GetIO();
-
-        if (io.WantCaptureMouse) {
+        // imgui already handles these from the handler and the game reads through GameInput rather than windowProc so this does nothing
+        /*if (io.WantCaptureMouse) {
             switch (msg) {
                 case WM_MOUSEMOVE:
                 case WM_LBUTTONDOWN:
@@ -63,7 +86,7 @@ LRESULT CALLBACK hk_windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 case WM_XBUTTONDBLCLK:
                     return TRUE;
             }
-        }
+        }*/
         if (io.WantCaptureKeyboard) {
             switch (msg) {
                 case WM_KEYDOWN:
@@ -176,6 +199,28 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         }
         if (hwnd && !wndProcHooked && win32Ready ) {
             wndProcHooked = hookWndProc(hwnd);
+            winrt::com_ptr<GameInput::v2::IGameInput> gameInput{};
+            winrt::check_hresult(GameInput::v2::GameInputCreate(gameInput.put()));
+
+            winrt::com_ptr<GameInput::v2::IGameInputReading> gameInputReading{};
+            winrt::check_hresult(gameInput->GetCurrentReading(GameInput::v2::GameInputKind::GameInputKindMouse, nullptr,
+                                                              gameInputReading.put()));
+
+            constexpr size_t vtableIndex = 14;
+
+            auto vtable = *reinterpret_cast<void***>(gameInputReading.get());
+            void* function = vtable[vtableIndex];
+
+            auto status = MH_CreateHook(
+            function,
+                reinterpret_cast<LPVOID>(&hk_GameMouseState),
+                reinterpret_cast<LPVOID*>(&oGameMouseState)
+            );
+            if (status == MH_OK) {
+                status = MH_EnableHook(
+                    reinterpret_cast<LPVOID>(function)
+                );
+            }
         }
         if (!d3d12Device) {
             this_->GetDevice(IID_PPV_ARGS(d3d12Device.put()));
