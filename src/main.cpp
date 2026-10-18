@@ -4,10 +4,20 @@
 #include <MinHook.h>
 #include <Rendering/Renderer.h>
 #include <print>
-
+#include "Utils/log.h"
 
 static DWORD WINAPI startup(LPVOID dll) {
+    #ifndef NDEBUG
+        AllocConsole();
+        FILE* f;
+        freopen_s(&f, "CONOUT$", "w", stdout);
+        freopen_s(&f, "CONOUT$", "w", stderr);
+    #endif
+
+    LOG("Initializing minhook\n");
     MH_Initialize();
+    LOG("Rendering::init\n");
+    Rendering::init();
     return 0;
 }
 

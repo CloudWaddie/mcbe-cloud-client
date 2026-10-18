@@ -40,11 +40,51 @@ using executeCommandQueueFunc = void(*)(ID3D12CommandQueue*, UINT, ID3D12Command
 using presentFunc = HRESULT(*)(IDXGISwapChain*, UINT, UINT);
 using gameMouseStateFunc = bool(*)(GameInput::v2::IGameInputReading*, GameInput::v2::GameInputMouseState*);
 
+using resizeBuffers1Func = HRESULT(*)(IDXGISwapChain3*, UINT, UINT, UINT, DXGI_FORMAT, UINT, const UINT*, IUnknown* const*);
+static resizeBuffers1Func oResizeBuffers1{};
+
 static executeCommandQueueFunc oExecuteCommandLists{};
 static presentFunc oPresent{};
 static WNDPROC oWndProc = nullptr;
 static gameMouseStateFunc oGameMouseState{};
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+void cleanupFrames() {
+    framesReady = false;
+    if (d3d11Context) {
+        if (d3d11on12Device) {
+            wrappedBackBuffers.resize(0);
+            renderTargetViews.resize(0);
+        }
+        d3d11Context->Flush();
+    }
+}
+
+
+static HRESULT hk_ResizeBuffers1(
+    IDXGISwapChain3* self,
+    UINT bufferCount,
+    UINT width,
+    UINT height,
+    DXGI_FORMAT format,
+    UINT flags,
+    const UINT* creationNodeMask,
+    IUnknown* const* presentQueue
+) {
+    cleanupFrames();
+
+    return oResizeBuffers1(
+        self,
+        bufferCount,
+        width,
+        height,
+        format,
+        flags,
+        creationNodeMask,
+        presentQueue
+    );
+}
+
 
 static bool hk_GameMouseState(
     GameInput::v2::IGameInputReading* self,
@@ -295,5 +335,7 @@ bool Rendering::init() {
     kiero::bind<&ID3D12CommandQueue::ExecuteCommandLists>(&oExecuteCommandLists, &hk_ExecuteCommandLists);
     auto status = kiero::bind<&IDXGISwapChain::Present>(&oPresent, &hk_Present);
     assert(status == kiero::Status::Success);
+    auto resizeStatus = kiero::bind<&IDXGISwapChain3::ResizeBuffers1>(&oResizeBuffers1,&hk_ResizeBuffers1);
+    // assert(resizeStatus == kiero::Status::Success); // honestly if we're just gonna not render i might as well just let it continue and if it crashes so be it
     return true;
 }

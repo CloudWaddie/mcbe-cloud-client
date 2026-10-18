@@ -15,8 +15,8 @@ namespace SDK {
     class ClientInstance {
         public:
             static ClientInstance* get();
-            void displayClientMessage(const std::string& message, std::optional<std::string> filtered = std::nullopt) {
-                return SDK::Memory::CallVFunc<void, const std::string&, std::optional<std::string>>(this, 0, message, filtered); // TODO: i need to get the right index
+            void* getLocalPlayer() {
+                return SDK::Memory::CallVFunc<void*>(this, 31);
             }
     };
 }
