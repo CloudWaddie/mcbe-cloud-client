@@ -15,6 +15,7 @@
 #include "imgui_impl_win32.h"
 #include <vector>
 #include <utility>
+#include "Resources/InterFont.h"
 
 // minhook for window messages
 #include <MinHook.h>
@@ -38,6 +39,7 @@ static bool framesReady = false;
 static bool win32Ready = false;
 static bool wndProcHooked = false;
 static bool welcomed = false;
+static bool isDX12 = false;
 
 using executeCommandQueueFunc = void(*)(ID3D12CommandQueue*, UINT, ID3D12CommandList* const*);
 using presentFunc = HRESULT(*)(IDXGISwapChain*, UINT, UINT);
@@ -54,11 +56,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 void cleanupFrames() {
     framesReady = false;
+    renderTargetViews.clear();
+    wrappedBackBuffers.clear();
     if (d3d11Context) {
-        if (d3d11on12Device) {
-            wrappedBackBuffers.resize(0);
-            renderTargetViews.resize(0);
-        }
         d3d11Context->Flush();
     }
 }
@@ -224,6 +224,38 @@ static bool createRenderTargets(IDXGISwapChain* swapChain) {
     return true;
 }
 
+static bool createRenderTargetsDX11(IDXGISwapChain* swapChain) {
+    if (!d3d11Device) {
+        return false;
+    }
+
+    winrt::com_ptr<IDXGISwapChain3> sc3;
+    if (FAILED(swapChain->QueryInterface(IID_PPV_ARGS(sc3.put())))) {
+        return false;
+    }
+
+    DXGI_SWAP_CHAIN_DESC desc{};
+    if (FAILED(swapChain->GetDesc(&desc)) || desc.BufferCount == 0) {
+        return false;
+    }
+
+    std::vector<winrt::com_ptr<ID3D11RenderTargetView>> newRTVs(desc.BufferCount);
+
+    for (UINT i = 0; i < desc.BufferCount; i++) {
+        winrt::com_ptr<ID3D11Texture2D> backBuffer;
+        if (FAILED(swapChain->GetBuffer(i, IID_PPV_ARGS(backBuffer.put())))) {
+            return false;
+        }
+        if (FAILED(d3d11Device->CreateRenderTargetView(backBuffer.get(), nullptr, newRTVs[i].put()))) {
+            return false;
+        }
+    }
+
+    swapChain3 = std::move(sc3);
+    renderTargetViews = std::move(newRTVs);
+    return true;
+}
+
 static void hk_ExecuteCommandLists(ID3D12CommandQueue* queue, UINT numCommandLists, ID3D12CommandList* const* commandLists) {
     if (!commandQueue && queue->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
         commandQueue.copy_from(queue);
@@ -270,6 +302,7 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         }
         if (d3d12Device) {
             // dd3d11on12
+            isDX12 = true;
             if (!commandQueue) {
                 return oPresent(this_, SyncInterval, Flags);
             }
@@ -283,27 +316,36 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         }
         else if (SUCCEEDED(this_->GetDevice(IID_PPV_ARGS(d3d11Device.put())))) {
             // directx11
+            isDX12 = false;
             d3d11Device->GetImmediateContext(d3d11Context.put());
         }
     }
-    if (d3d11on12Device && !framesReady) {
-        framesReady = createRenderTargets(this_);
+    if (!framesReady && d3d11Device) {
+        framesReady = isDX12 ? createRenderTargets(this_) : createRenderTargetsDX11(this_);
     }
     if (!imguiBackendReady && win32Ready && d3d11Device && d3d11Context) {
         imguiBackendReady = ImGui_ImplDX11_Init(
             d3d11Device.get(),
             d3d11Context.get()
         );
+        // load our font
+        ImGuiIO& io = ImGui::GetIO();
+        ImFontConfig cfg;
+        cfg.FontDataOwnedByAtlas = false; // so it doesnt try to free it
+        ImFont* font = io.Fonts->AddFontFromMemoryTTF(Fonts::inter, Fonts::interSize, 18.f, &cfg);
+        if (!font) {
+            LOG("Failed to load Inter font");
+        }
     }
-    if (imguiBackendReady && framesReady && d3d11on12Device && swapChain3) {
+    if (imguiBackendReady && framesReady && swapChain3) {
 
         // set the rtv
         UINT index = swapChain3->GetCurrentBackBufferIndex();
-        if (index >= wrappedBackBuffers.size() || index >= renderTargetViews.size()) {
+        if (index >= renderTargetViews.size() || (isDX12 && index >= wrappedBackBuffers.size())) {
             return oPresent(this_, SyncInterval, Flags);
         }
 
-        ID3D11Resource* wrapped = wrappedBackBuffers[index].get();
+        ID3D11Resource* wrapped = isDX12 ? wrappedBackBuffers[index].get() : nullptr;
         ID3D11RenderTargetView* rtv = renderTargetViews[index].get();
 
         // now render imgui frames
@@ -313,19 +355,21 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         if (!welcomed) {
             Rendering::Notifications::notify("Successfully injected!");
             welcomed = true;
-        };
+        }
 
         Rendering::Notifications::render();
 
         ImGui::Render();
 
-        d3d11on12Device->AcquireWrappedResources(&wrapped, 1);
+        if (isDX12) {
+            d3d11on12Device->AcquireWrappedResources(&wrapped, 1);
+        }
         d3d11Context->OMSetRenderTargets(1, &rtv, nullptr);
         // render using our rtv
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         // cleanup
         d3d11Context->OMSetRenderTargets(0, nullptr, nullptr);
-        d3d11on12Device->ReleaseWrappedResources(&wrapped, 1);
+        if (isDX12) d3d11on12Device->ReleaseWrappedResources(&wrapped, 1);
         d3d11Context->Flush();
     }
 
