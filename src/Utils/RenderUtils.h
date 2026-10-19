@@ -10,8 +10,7 @@
 namespace Utils {
     namespace Render {
         inline float getLerpValue(const float a, const float b, const float t) {
-            const float v = a - (b - a) * t;
-            return std::ceilf(v * 1000.f) / 1000.f;
+            return a + (b - a) * t;
         }
         inline ImU32 rgbToCol(const int r, const int g, const int b, const float a = 1.f) {
             return IM_COL32(r, g, b, static_cast<int>(a * 255.f));

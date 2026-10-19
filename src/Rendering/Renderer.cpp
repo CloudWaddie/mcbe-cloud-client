@@ -22,6 +22,7 @@
 // game input
 #include "Notifications.h"
 #include "../GameInput/GameInput.h"
+#include "Utils/log.h"
 
 // all vars we need for rendering
 static winrt::com_ptr<ID3D11Device> d3d11Device;
@@ -309,8 +310,13 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-        Rendering::Notifications::notify("Successfully injected!");
+        if (!welcomed) {
+            Rendering::Notifications::notify("Successfully injected!");
+            welcomed = true;
+        };
+
         Rendering::Notifications::render();
+
         ImGui::Render();
 
         d3d11on12Device->AcquireWrappedResources(&wrapped, 1);
