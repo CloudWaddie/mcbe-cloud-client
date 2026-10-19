@@ -1,0 +1,1 @@
+you need to add your own gameinput header in GameInput/GameInput.h in the root (not src)
