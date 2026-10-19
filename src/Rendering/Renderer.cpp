@@ -20,6 +20,7 @@
 #include <MinHook.h>
 
 // game input
+#include "Notifications.h"
 #include "../GameInput/GameInput.h"
 
 // all vars we need for rendering
@@ -35,6 +36,7 @@ static bool imguiBackendReady = false;
 static bool framesReady = false;
 static bool win32Ready = false;
 static bool wndProcHooked = false;
+static bool welcomed = false;
 
 using executeCommandQueueFunc = void(*)(ID3D12CommandQueue*, UINT, ID3D12CommandList* const*);
 using presentFunc = HRESULT(*)(IDXGISwapChain*, UINT, UINT);
@@ -307,7 +309,8 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+        Rendering::Notifications::notify("Successfully injected!");
+        Rendering::Notifications::render();
         ImGui::Render();
 
         d3d11on12Device->AcquireWrappedResources(&wrapped, 1);
