@@ -4,6 +4,7 @@
 #include <MinHook.h>
 #include <Rendering/Renderer.h>
 #include <print>
+#include "Features/FeatureManager.h"
 #include "Utils/log.h"
 
 static DWORD WINAPI startup(LPVOID dll) {
@@ -18,6 +19,8 @@ static DWORD WINAPI startup(LPVOID dll) {
     MH_Initialize();
     LOG("Rendering::init\n");
     Rendering::init();
+    LOG("FeatureManager::init\n");
+    FeatureManager::init();
     return 0;
 }
 

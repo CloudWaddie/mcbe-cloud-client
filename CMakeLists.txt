@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-project(dll_test)
+project(cloud-client)
 
 set(CMAKE_CXX_STANDARD 23)
 
@@ -20,6 +20,7 @@ CPMAddPackage(
 )
 
 CPMAddPackage("gh:ocornut/imgui@1.92.9")
+CPMAddPackage("gh:DisabledMallis/NuvolaEventSystem@1.2.1")
 
 add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/imgui.cpp
@@ -42,9 +43,9 @@ File(GLOB_RECURSE dllsrc CONFIGURE_DEPENDS
         "src/*.cpp"
 )
 
-add_library(dll_test SHARED ${dllsrc})
-target_include_directories(dll_test PRIVATE
+add_library(cloud-client SHARED ${dllsrc})
+target_include_directories(cloud-client PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(dll_test PRIVATE
-        kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler RuntimeObject.lib GameInput)
+target_link_libraries(cloud-client PRIVATE
+        kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler RuntimeObject.lib GameInput nuvola_event_system)
