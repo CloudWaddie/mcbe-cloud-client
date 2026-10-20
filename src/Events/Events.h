@@ -6,6 +6,7 @@
 #define DLL_TEST_EVENTS_H
 
 #include <nes/event_dispatcher.hpp>
+#include <memory>
 
 namespace Events {
     inline std::unique_ptr<nes::event_dispatcher> dispatcher;

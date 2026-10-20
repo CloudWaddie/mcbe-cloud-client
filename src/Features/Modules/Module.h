@@ -6,6 +6,7 @@
 #define DLL_TEST_MODULE_H
 #include <atomic>
 #include <string>
+#include <utility>
 
 class Module {
     public:
