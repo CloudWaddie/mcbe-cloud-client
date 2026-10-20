@@ -17,10 +17,10 @@ static DWORD WINAPI startup(LPVOID dll) {
 
     LOG("Initializing minhook\n");
     MH_Initialize();
+    LOG("FeatureManager::init\n"); // init before render so when i add the event system for RenderEvent the events are already ready
+    FeatureManager::init();
     LOG("Rendering::init\n");
     Rendering::init();
-    LOG("FeatureManager::init\n");
-    FeatureManager::init();
     return 0;
 }
 
