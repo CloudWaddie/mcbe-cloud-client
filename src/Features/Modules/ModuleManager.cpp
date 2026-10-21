@@ -4,7 +4,10 @@
 
 #include "ModuleManager.h"
 
+#include "Visual/Watermark.h"
+
 void ModuleManager::init () {
+    registerModule<Watermark>();
     for (auto& m : modules) m->onInit();
 }
 void ModuleManager::shutdown() {

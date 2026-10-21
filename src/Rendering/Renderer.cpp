@@ -23,6 +23,7 @@
 // game input
 #include "Notifications.h"
 #include "../GameInput/GameInput.h"
+#include "Events/Events.h"
 #include "Utils/log.h"
 
 // all vars we need for rendering
@@ -358,6 +359,9 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         }
 
         Rendering::Notifications::render();
+
+        auto event = nes::make_holder<Events::RenderEvent>();
+        Events::dispatcher->trigger(event);
 
         ImGui::Render();
 
