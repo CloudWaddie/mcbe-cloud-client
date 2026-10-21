@@ -53,7 +53,7 @@ namespace Rendering {
             float height = screenHeight * 0.035f;
             float fontSize = screenHeight * 0.128f; // TODO: Use a calc font size render util
             float imguiFontSize = fontSize * 0.18f; // TODO: Above
-            ImU32 accentCol = Utils::Render::rgbToCol(255, 35, 58);
+            ImU32 accentCol = Utils::Render::rgbToCol(20, 200, 255);
             ImDrawList* drawList = ImGui::GetForegroundDrawList(); // lots of ppl use background draw list but i want arraylist, watermark and notifs to be ontop
 
             int i = 0;

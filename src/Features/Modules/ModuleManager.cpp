@@ -4,10 +4,12 @@
 
 #include "ModuleManager.h"
 
+#include "Visual/DevConsole.h"
 #include "Visual/Watermark.h"
 
 void ModuleManager::init () {
     registerModule<Watermark>();
+    registerModule<DevConsole>();
     for (auto& m : modules) m->onInit();
 }
 void ModuleManager::shutdown() {
