@@ -11,7 +11,7 @@ void Watermark::onRender(Events::RenderEvent&) {
     const ImGuiIO& io = ImGui::GetIO();
     constexpr std::string text = "Cloud Client";
     const float h = io.DisplaySize.y;
-    const float margin = h * 0.01f;
+    const float margin = Utils::Render::scaleToScreenHeight(h * 0.01f, h);
     const ImVec2 pos(margin, margin); // ik this might seem weird but its just so margin is same on both sides
     const auto time = static_cast<float>(ImGui::GetTime());
 
