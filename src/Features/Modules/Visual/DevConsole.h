@@ -2,8 +2,8 @@
 // Created by Edward on 21/10/2026.
 //
 
-#ifndef DLL_TEST_DEVCONSOLE_H
-#define DLL_TEST_DEVCONSOLE_H
+#ifndef CLOUD_CLIENT_DEVCONSOLE_H
+#define CLOUD_CLIENT_DEVCONSOLE_H
 
 #include "Features/Modules/Module.h"
 #include "Events/Events.h"
@@ -11,7 +11,7 @@
 class DevConsole : public Module {
 public:
     char notificationText[256] = "";
-    DevConsole() : Module("Dev Console", "dev screen idk what ima put here") {}
+    DevConsole() : Module("Dev Console", "dev screen idk what ima put here", Category::Visual) {}
 
     void onInit() override { setEnabled(true); }
     void onEnable() override {
@@ -25,4 +25,4 @@ private:
     void onRender(Events::RenderEvent& event);
 };
 
-#endif //DLL_TEST_DEVCONSOLE_H
+#endif //CLOUD_CLIENT_DEVCONSOLE_H

@@ -2,8 +2,8 @@
 // Created by Edward on 19/10/2026.
 //
 
-#ifndef DLL_TEST_RENDERUTILS_H
-#define DLL_TEST_RENDERUTILS_H
+#ifndef CLOUD_CLIENT_RENDERUTILS_H
+#define CLOUD_CLIENT_RENDERUTILS_H
 #include <cmath>
 #include <imgui.h>
 #include <string>
@@ -45,4 +45,4 @@ namespace Utils {
     }
 }
 
-#endif //DLL_TEST_RENDERUTILS_H
+#endif //CLOUD_CLIENT_RENDERUTILS_H

@@ -2,8 +2,8 @@
 // Created by Edward on 16/10/2026.
 //
 
-#ifndef DLL_TEST_PLATFORM_GAMECORE_H
-#define DLL_TEST_PLATFORM_GAMECORE_H
+#ifndef CLOUD_CLIENT_PLATFORM_GAMECORE_H
+#define CLOUD_CLIENT_PLATFORM_GAMECORE_H
 
 #include "Platform_GameCore.h"
 #include "MinecraftGame.h"
@@ -19,4 +19,4 @@ namespace SDK {
     };
 }
 
-#endif //DLL_TEST_PLATFORM_GAMECORE_H
+#endif //CLOUD_CLIENT_PLATFORM_GAMECORE_H

@@ -2,11 +2,12 @@
 // Created by Edward on 20/10/2026.
 //
 
-#ifndef DLL_TEST_FEATUREMANAGER_H
-#define DLL_TEST_FEATUREMANAGER_H
+#ifndef CLOUD_CLIENT_FEATUREMANAGER_H
+#define CLOUD_CLIENT_FEATUREMANAGER_H
 
 namespace FeatureManager {
     void init();
+    void shutdown();
 }
 
-#endif //DLL_TEST_FEATUREMANAGER_H
+#endif //CLOUD_CLIENT_FEATUREMANAGER_H

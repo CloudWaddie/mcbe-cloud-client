@@ -2,8 +2,8 @@
 // Created by Edward on 20/10/2026.
 //
 
-#ifndef DLL_TEST_EVENTS_H
-#define DLL_TEST_EVENTS_H
+#ifndef CLOUD_CLIENT_EVENTS_H
+#define CLOUD_CLIENT_EVENTS_H
 
 #include <nes/event_dispatcher.hpp>
 #include <memory>
@@ -14,4 +14,4 @@ namespace Events {
     struct RenderEvent {};
 }
 
-#endif //DLL_TEST_EVENTS_H
+#endif //CLOUD_CLIENT_EVENTS_H

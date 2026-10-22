@@ -2,8 +2,8 @@
 // Created by Edward on 18/10/2026.
 //
 
-#ifndef DLL_TEST_CALLVFUNC_H
-#define DLL_TEST_CALLVFUNC_H
+#ifndef CLOUD_CLIENT_CALLVFUNC_H
+#define CLOUD_CLIENT_CALLVFUNC_H
 #include <cstddef>
 
 namespace SDK {
@@ -18,4 +18,4 @@ namespace SDK {
     }
 }
 
-#endif //DLL_TEST_CALLVFUNC_H
+#endif //CLOUD_CLIENT_CALLVFUNC_H

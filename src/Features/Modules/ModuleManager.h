@@ -2,8 +2,8 @@
 // Created by Edward on 20/10/2026.
 //
 
-#ifndef DLL_TEST_MODULEMANAGER_H
-#define DLL_TEST_MODULEMANAGER_H
+#ifndef CLOUD_CLIENT_MODULEMANAGER_H
+#define CLOUD_CLIENT_MODULEMANAGER_H
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,6 +15,7 @@ public:
     static void shutdown();
 
     static Module* getModule(const std::string& name);
+    static std::vector<Module*> getModulesByCategory(Category category);
 
     template <class T>
     static T* getModule() {
@@ -32,4 +33,4 @@ private:
     inline static std::vector<std::unique_ptr<Module>> modules;
 };
 
-#endif //DLL_TEST_MODULEMANAGER_H
+#endif //CLOUD_CLIENT_MODULEMANAGER_H

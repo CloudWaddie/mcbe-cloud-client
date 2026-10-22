@@ -13,4 +13,8 @@ namespace FeatureManager {
         Events::dispatcher = std::make_unique<nes::event_dispatcher>();
         ModuleManager::init();
     }
+    void shutdown () {
+        Events::dispatcher = nullptr;
+        ModuleManager::shutdown();
+    }
 }

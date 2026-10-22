@@ -2,15 +2,15 @@
 // Created by Edward on 21/10/2026.
 //
 
-#ifndef DLL_TEST_WATERMARK_H
-#define DLL_TEST_WATERMARK_H
+#ifndef CLOUD_CLIENT_WATERMARK_H
+#define CLOUD_CLIENT_WATERMARK_H
 
 #include "Features/Modules/Module.h"
 #include "Events/Events.h"
 
 class Watermark : public Module {
 public:
-    Watermark() : Module("Watermark", "shows da watermark") {}
+    Watermark() : Module("Watermark", "shows da watermark", Category::Visual) {}
 
     void onInit() override { setEnabled(true); }
     void onEnable() override {
@@ -24,4 +24,4 @@ private:
     void onRender(Events::RenderEvent& event);
 };
 
-#endif //DLL_TEST_WATERMARK_H
+#endif //CLOUD_CLIENT_WATERMARK_H

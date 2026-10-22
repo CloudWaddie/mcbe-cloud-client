@@ -4,8 +4,8 @@
 // Created by Edward on 16/10/2026.
 //
 
-#ifndef DLL_TEST_CLIENTINSTANCE_H
-#define DLL_TEST_CLIENTINSTANCE_H
+#ifndef CLOUD_CLIENT_CLIENTINSTANCE_H
+#define CLOUD_CLIENT_CLIENTINSTANCE_H
 #include <optional>
 #include <string>
 
@@ -21,4 +21,4 @@ namespace SDK {
     };
 }
 
-#endif //DLL_TEST_CLIENTINSTANCE_H
+#endif //CLOUD_CLIENT_CLIENTINSTANCE_H

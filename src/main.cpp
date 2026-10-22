@@ -1,4 +1,3 @@
-#define NOMINMAX
 #include <cstdio>
 #include <Windows.h>
 #include <MinHook.h>
@@ -6,13 +5,15 @@
 #include <print>
 #include "Features/FeatureManager.h"
 #include "Utils/log.h"
+#include "Globals.h"
 
 static DWORD WINAPI startup(LPVOID dll) {
     #ifndef NDEBUG
         AllocConsole();
-        FILE* f;
-        freopen_s(&f, "CONOUT$", "w", stdout);
-        freopen_s(&f, "CONOUT$", "w", stderr);
+        FILE* fout;
+        FILE* ferr;
+        freopen_s(&fout, "CONOUT$", "w", stdout);
+        freopen_s(&ferr, "CONOUT$", "w", stderr);
     #endif
 
     LOG("Initializing minhook\n");
@@ -21,6 +22,20 @@ static DWORD WINAPI startup(LPVOID dll) {
     FeatureManager::init();
     LOG("Rendering::init\n");
     Rendering::init();
+    while (!Client::shouldUninject) {
+        Sleep(10);
+    }
+    MH_DisableHook(MH_ALL_HOOKS);
+    Sleep(10); // short sleep
+    Rendering::shutdown();
+    FeatureManager::shutdown();
+    MH_Uninitialize();
+    #ifndef NDEBUG
+        fclose(fout);
+        fclose(ferr);
+        FreeConsole();
+    #endif
+    FreeLibraryAndExitThread(static_cast<HMODULE>(dll), 0);
     return 0;
 }
 

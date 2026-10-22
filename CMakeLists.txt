@@ -49,3 +49,5 @@ target_include_directories(cloud-client PRIVATE
 )
 target_link_libraries(cloud-client PRIVATE
         kiero::kiero-minhook libhat::libhat minhook imgui d3d11 dxgi d3d12 d3dcompiler RuntimeObject.lib GameInput nuvola_event_system)
+target_compile_definitions(cloud-client PRIVATE NOMINMAX)
+target_precompile_headers(cloud-client PRIVATE <Windows.h> <print> <imgui.h> <MinHook.h> <vector> <atomic> <string> <memory>)

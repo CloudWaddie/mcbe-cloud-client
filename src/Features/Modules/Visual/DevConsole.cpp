@@ -1,6 +1,7 @@
 #include "DevConsole.h"
 #include <imgui.h>
 
+#include "Globals.h"
 #include "Rendering/Notifications.h"
 
 void DevConsole::onRender(Events::RenderEvent&) {
@@ -13,11 +14,8 @@ void DevConsole::onRender(Events::RenderEvent&) {
     if (ImGui::Button("Trigger", ImVec2(-1, 0)) || enter) {
         Rendering::Notifications::notify(std::string(notificationText));
     }
-    static float frameTimes[120] = {};
-    static int offset = 0;
-    frameTimes[offset] = 1000.0f / (io.Framerate > 0.f ? io.Framerate : 1.f);
-    offset = (offset + 1) % IM_ARRAYSIZE(frameTimes);
-    ImGui::PlotLines("##ft", frameTimes, IM_ARRAYSIZE(frameTimes), offset,
-                     "frame ms", 0.f, 33.f, ImVec2(-1, 60));
+    if (ImGui::Button("Uninject", ImVec2(-1, 0))) {
+        Client::shouldUninject = true;
+    }
     ImGui::End();
 }

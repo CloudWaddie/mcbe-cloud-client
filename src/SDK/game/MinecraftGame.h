@@ -3,8 +3,8 @@
 //
 
 
-#ifndef DLL_TEST_MINECRAFTGAME_H
-#define DLL_TEST_MINECRAFTGAME_H
+#ifndef CLOUD_CLIENT_MINECRAFTGAME_H
+#define CLOUD_CLIENT_MINECRAFTGAME_H
 
 namespace SDK {
     class ClientInstance;
@@ -16,4 +16,4 @@ namespace SDK {
 }
 
 
-#endif //DLL_TEST_MINECRAFTGAME_H
+#endif //CLOUD_CLIENT_MINECRAFTGAME_H

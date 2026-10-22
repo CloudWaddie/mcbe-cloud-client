@@ -2,8 +2,8 @@
 // Created by Edward on 19/10/2026.
 //
 
-#ifndef DLL_TEST_NOTIFICATIONS_H
-#define DLL_TEST_NOTIFICATIONS_H
+#ifndef CLOUD_CLIENT_NOTIFICATIONS_H
+#define CLOUD_CLIENT_NOTIFICATIONS_H
 
 #include <string>
 
@@ -15,4 +15,4 @@ namespace Rendering {
     }
 }
 
-#endif //DLL_TEST_NOTIFICATIONS_H
+#endif //CLOUD_CLIENT_NOTIFICATIONS_H

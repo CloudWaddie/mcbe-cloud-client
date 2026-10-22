@@ -175,6 +175,23 @@ static bool hookWndProc(HWND hwnd) {
     return true;
 }
 
+static void unhookWndProc() {
+    if (!hookedWindow || !oWndProc) {
+        return;
+    }
+    SetWindowLongPtr(
+        hookedWindow,
+        GWLP_WNDPROC,
+        reinterpret_cast<LONG_PTR>(oWndProc)
+    );
+    oWndProc = nullptr;
+    hookedWindow = nullptr;
+}
+
+void Rendering::shutdown() {
+    unhookWndProc();
+}
+
 static bool createRenderTargets(IDXGISwapChain* swapChain) {
     if (!d3d11Device || !d3d11on12Device) {
         return false;

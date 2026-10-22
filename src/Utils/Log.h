@@ -2,8 +2,8 @@
 // Created by Edward on 18/10/2026.
 //
 
-#ifndef DLL_TEST_LOG_H
-#define DLL_TEST_LOG_H
+#ifndef CLOUD_CLIENT_LOG_H
+#define CLOUD_CLIENT_LOG_H
 
 #include <cstdio>
 
@@ -15,4 +15,4 @@
     #define LOG(...) ((void)0)
 #endif
 
-#endif //DLL_TEST_LOG_H
+#endif //CLOUD_CLIENT_LOG_H
