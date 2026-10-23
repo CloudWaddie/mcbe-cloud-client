@@ -11,11 +11,14 @@
 #include "Visual/DebugLog.h"
 
 void ModuleManager::init () {
+    #ifndef NDEBUG
+        registerModule<Metrics>();
+        registerModule<DebugLog>();
+        registerModule<DevConsole>();
+    #endif
+
     registerModule<Watermark>();
-    registerModule<DevConsole>();
     registerModule<ClickGUI>();
-    registerModule<Metrics>();
-    registerModule<DebugLog>();
     for (auto& m : modules) m->onInit();
 }
 void ModuleManager::shutdown() {
