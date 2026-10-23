@@ -17,9 +17,12 @@ namespace Utils {
             return IM_COL32(r, g, b, static_cast<int>(a * 255.f));
         }
 
-        // converts a value designed at my dev screen height (1920) to the end users screen height
+        // converts a value designed at my dev screen height (1080) to the end users screen height
         inline float scaleToScreenHeight(float designPixels, float screenHeight) {
-            return designPixels * (screenHeight / 1920.f);
+            return designPixels * (screenHeight / 1080.f);
+        }
+        inline float scaleToScreenWidth(float designPixels, float screenWdith) {
+            return designPixels * (screenWdith / 1920.f);
         }
         inline void drawAnimatedGradientText(ImDrawList* dl, const float fontSize, const ImVec2 pos, const std::string& text, const ImColor from, const ImColor to, const float shift) {
             ImGui::PushFont(nullptr, fontSize);

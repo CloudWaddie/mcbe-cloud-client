@@ -26,7 +26,7 @@ class Module {
                 if (enabled.exchange(value) == value) return;
                 if (value) onEnable();
                 else onDisable();
-            }
+        }
 
         void toggle() { setEnabled(!enabled); }
     private:

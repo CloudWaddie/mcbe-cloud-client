@@ -24,7 +24,9 @@
 #include "Notifications.h"
 #include "../GameInput/GameInput.h"
 #include "Events/Events.h"
+#include "Features/Modules/ModuleManager.h"
 #include "Utils/log.h"
+#include "Features/Modules/Module.h"
 
 // all vars we need for rendering
 static winrt::com_ptr<ID3D11Device> d3d11Device;
@@ -376,6 +378,14 @@ static HRESULT hk_Present(IDXGISwapChain* this_, UINT SyncInterval, UINT Flags) 
         }
 
         Rendering::Notifications::render();
+
+        std::vector<Module*> toToggle;
+        toToggle.swap(ModuleManager::modulesWantToggle);
+
+        for (Module* pendingModule : toToggle) {
+            pendingModule->toggle();
+            ImGui::DebugLog("Toggled module: %s\n", pendingModule->getName().c_str());
+        }
 
         auto event = nes::make_holder<Events::RenderEvent>();
         Events::dispatcher->trigger(event);

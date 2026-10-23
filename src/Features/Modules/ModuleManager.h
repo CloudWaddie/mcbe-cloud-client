@@ -14,6 +14,8 @@ public:
     static void init();
     static void shutdown();
 
+    inline static std::vector<Module*> modulesWantToggle;
+
     static Module* getModule(const std::string& name);
     static std::vector<Module*> getModulesByCategory(Category category);
 

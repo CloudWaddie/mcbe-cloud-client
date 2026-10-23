@@ -7,11 +7,15 @@
 #include "Visual/ClickGUI.h"
 #include "Visual/DevConsole.h"
 #include "Visual/Watermark.h"
+#include "Visual/Metrics.h"
+#include "Visual/DebugLog.h"
 
 void ModuleManager::init () {
     registerModule<Watermark>();
     registerModule<DevConsole>();
     registerModule<ClickGUI>();
+    registerModule<Metrics>();
+    registerModule<DebugLog>();
     for (auto& m : modules) m->onInit();
 }
 void ModuleManager::shutdown() {
