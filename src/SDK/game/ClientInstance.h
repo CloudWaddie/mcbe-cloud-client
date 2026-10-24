@@ -20,9 +20,7 @@ namespace SDK {
                 return SDK::Memory::CallVFunc<void*>(this, 31);
             }
             std::string getScreenName() {
-                    alignas(std::string) std::byte raw[sizeof(std::string)];
-                    auto* gameStr = SDK::Memory::CallVFunc<std::string*, void*>(this, 246, raw);
-                    return std::string(gameStr->data(), gameStr->size());
+                    return SDK::Memory::CallVFunc<std::string>(this, 246);
             }
         private:
             inline static ClientInstance* instance = nullptr;
