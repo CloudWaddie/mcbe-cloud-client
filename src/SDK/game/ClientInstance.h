@@ -15,9 +15,12 @@ namespace SDK {
     class ClientInstance {
         public:
             static ClientInstance* get();
+            static void setInstance(ClientInstance* newInstance) { instance = newInstance; }
             void* getLocalPlayer() {
                 return SDK::Memory::CallVFunc<void*>(this, 31);
             }
+        private:
+            inline static ClientInstance* instance = nullptr;
     };
 }
 
