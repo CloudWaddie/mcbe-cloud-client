@@ -29,11 +29,18 @@ class Module {
         }
 
         void toggle() { setEnabled(!enabled); }
+        int getKeybind() const {
+            return keybind; 
+        }
+        void setKeybind(int const value) {
+            keybind = value;
+        }
     private:
         std::string name;
         std::string description;
         std::atomic<bool> enabled = false;
         Category category;
+        int keybind = 0;
 };
 
 #endif //CLOUD_CLIENT_MODULE_H

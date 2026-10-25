@@ -21,12 +21,14 @@
 #include <MinHook.h>
 
 // game input
+#include "Globals.h"
 #include "Notifications.h"
 #include "../GameInput/GameInput.h"
 #include "Events/Events.h"
 #include "Features/Modules/ModuleManager.h"
 #include "Utils/log.h"
 #include "Features/Modules/Module.h"
+#include "SDK/game/ClientInstance.h"
 
 // all vars we need for rendering
 static winrt::com_ptr<ID3D11Device> d3d11Device;
@@ -100,9 +102,14 @@ static bool hk_GameMouseState(
 
     if (result && mouseState && ImGui::GetCurrentContext()) {
         ImGuiIO& io = ImGui::GetIO();
+        bool shouldBlock = io.WantCaptureMouse;
 
-        if (io.WantCaptureMouse) {
-            // Suppress mouse input reaching the game.
+        if (!shouldBlock && Client::clickGuiOpen) {
+            auto* clientInstance = SDK::ClientInstance::get();
+            shouldBlock = clientInstance && clientInstance->getScreenName() == "hud_screen";
+        }
+
+        if (shouldBlock) {
             *mouseState = {};
         }
     }
@@ -142,6 +149,23 @@ LRESULT CALLBACK hk_windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 case WM_CHAR:
                 case WM_SYSCHAR:
                     return 0;
+            }
+        }
+        if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) {
+            const bool isRepeat = (lParam & (1 << 30)) != 0;
+            if (!isRepeat) {
+                const int pressedKey = static_cast<int>(wParam);
+                auto* clientInstance = SDK::ClientInstance::get();
+
+                if (clientInstance && clientInstance->getScreenName() == "hud_screen") {
+                    for (const auto& module : ModuleManager::getModules()) {
+                        const int keybind = module->getKeybind();
+                        if (keybind == 0) continue;
+                        if (keybind == pressedKey) {
+                            ModuleManager::modulesWantToggle.push_back(module.get());
+                        }
+                    }
+                }
             }
         }
 
